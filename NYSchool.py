@@ -5,7 +5,7 @@ files = ["ap.csv", "class.csv", "demographics.csv", "grad.csv", "math.csv", "sat
 
 data = {}
 for f in files:
-    d = pd.read_csv(f)
+    d = pd.read_csv("Data/" + f)
     data[f.replace(".csv","")] = d
 
 data["school"]["DBN"] = data["school"]["dbn"]
