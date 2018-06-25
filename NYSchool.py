@@ -54,6 +54,7 @@ data["math"] = math
 grad = data["grad"]
 grad = grad[grad["Cohort"] == "2006"]
 grad = grad[grad["Demographic"] == "Total Cohort"]
+data["grad"] = grad
 
 # Compute avg SAT cumulative score
 data["sat"]["SAT Critical Reading Avg. Score"] = pd.to_numeric(data["sat"]["SAT Critical Reading Avg. Score"], errors = "coerce")
@@ -67,6 +68,21 @@ data["school"]["Longitude"] = pd.to_numeric(data["school"]["Longitude"])
 data["school"]["Latitude"] = pd.to_numeric(data["school"]["Latitude"])
 
 # Code to check data
-for k,v in data.items():
-    print("\n" + k + "\n")
-    print(v.head())
+#for k,v in data.items():
+#    print("\n" + k + "\n")
+#    print(v)
+
+# Combine data
+sub = [a for a,b in data.items()]
+sub_data = [data[a] for a in sub]
+full = sub_data[4]
+for i,g in enumerate(sub_data):
+    name = sub[i]
+    #print(name)
+    #print(len(g["DBN"]) - len(g["DBN"].unique()))
+    join = "inner"
+    if name in ["ap", "sat", "grad"]:
+        join = "outer"
+    if name != "math":
+        full = full.merge(g, on = "DBN", how = join)
+
