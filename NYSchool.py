@@ -1,5 +1,8 @@
 import pandas as pd
 import numpy as np
+import folium
+from folium import plugins
+from folium.plugins import MarkerCluster
 
 # File names
 files = ["ap.csv", "class.csv", "demographics.csv", "grad.csv", "math.csv", "sat.csv", "school.csv"]
@@ -86,3 +89,29 @@ for i,g in enumerate(sub_data):
     if name != "math":
         full = full.merge(g, on = "DBN", how = join)
 
+# Cleaning AP
+for a in ["AP Test Takers ", "Total Exams Taken", "Number of Exams with scores 3 4 or 5"]:
+    full[a] = pd.to_numeric(full[a], errors = "coerce")
+    full[a] = full[a].fillna(value=0)
+
+# Add school district
+full["schoold"] = full["DBN"].apply(lambda x: x[:2])
+
+# Remove null values
+full = full.fillna(full.mean())
+
+# Compute correlation
+#print(full.corr()["total"])
+
+# Display map
+smap = folium.Map(location=[full["Latitude"].mean(), full["Longitude"].mean()], zoom_start = 10)
+marky = MarkerCluster().add_to(smap)
+for a, b in full.iterrows():
+    name = b["DBN"]
+    trial = "test"
+    folium.Marker([b["Latitude"], b["Longitude"]], popup = name ).add_to(marky)
+smap.save(outfile = "location.html")
+
+sheat = folium.Map(location=[full['Latitude'].mean(), full['Longitude'].mean()], zoom_start=10)
+sheat.add_child(plugins.HeatMap([[row["Latitude"], row["Longitude"]] for name, row in full.iterrows()]))
+sheat.save(outfile = "heatmap.html")
