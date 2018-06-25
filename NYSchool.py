@@ -14,11 +14,6 @@ for f in files:
 data["school"]["DBN"] = data["school"]["dbn"]
 data["class"]["DBN"] = data["class"].apply(lambda x: "{0:02d}{1}".format(x["CSD"],x["SCHOOL CODE"]), axis=1)
 
-# Code to check data
-#for k,v in data.items():
-#    print("\n" + k + "\n")
-#    print(v.head())
-
 # Import survey data
 survey1 = pd.read_csv("Data/masterfile11_d75_final.txt", delimiter = "\t", encoding = "windows-1252")
 
@@ -36,7 +31,7 @@ surveyf = ["DBN", "rr_s", "rr_t", "rr_p", "N_s", "N_t", "N_p", "saf_p_11", "com_
 survey = survey.loc[:, surveyf]
 data["survey"] = survey
 
-# Condense data
+# Condense class data
 clas = data["class"]
 clas = clas[clas["GRADE "] == "09-12"]
 clas = clas[clas["PROGRAM TYPE"] == "GEN ED"]
@@ -44,3 +39,34 @@ clas = clas.groupby("DBN").agg(np.mean)
 clas.reset_index(inplace = True)
 data["class"] = clas
 
+# Condense demographics data
+dem = data["demographics"]
+dem = dem[dem["schoolyear"] == 20112012]
+data["demographics"] = dem
+
+# Condense math data
+math = data["math"]
+math = math[math["Year"] == 2011]
+math = math[math["Grade"] == "8"]
+data["math"] = math
+
+# Condense graduation data
+grad = data["grad"]
+grad = grad[grad["Cohort"] == "2006"]
+grad = grad[grad["Demographic"] == "Total Cohort"]
+
+# Compute avg SAT cumulative score
+data["sat"]["SAT Critical Reading Avg. Score"] = pd.to_numeric(data["sat"]["SAT Critical Reading Avg. Score"], errors = "coerce")
+data["sat"]["SAT Math Avg. Score"] = pd.to_numeric(data["sat"]["SAT Math Avg. Score"], errors = "coerce")
+data["sat"]["SAT Writing Avg. Score"] = pd.to_numeric(data["sat"]["SAT Writing Avg. Score"], errors = "coerce")
+
+data["sat"]["total"] = data["sat"]["SAT Writing Avg. Score"] + data["sat"]["SAT Math Avg. Score"] + data["sat"]["SAT Critical Reading Avg. Score"]
+
+# Convert latitude and longitude from string to float
+data["school"]["Longitude"] = pd.to_numeric(data["school"]["Longitude"])
+data["school"]["Latitude"] = pd.to_numeric(data["school"]["Latitude"])
+
+# Code to check data
+for k,v in data.items():
+    print("\n" + k + "\n")
+    print(v.head())
