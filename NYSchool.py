@@ -110,8 +110,8 @@ for a, b in full.iterrows():
     name = b["DBN"]
     trial = "test"
     folium.Marker([b["Latitude"], b["Longitude"]], popup = name ).add_to(marky)
-smap.save(outfile = "location.html")
+smap.save(outfile = "Maps/location.html")
 
 sheat = folium.Map(location=[full['Latitude'].mean(), full['Longitude'].mean()], zoom_start=10)
 sheat.add_child(plugins.HeatMap([[row["Latitude"], row["Longitude"]] for name, row in full.iterrows()]))
-sheat.save(outfile = "heatmap.html")
+sheat.save(outfile = "Maps/heatmap.html")
