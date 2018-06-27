@@ -115,3 +115,25 @@ smap.save(outfile = "Maps/location.html")
 sheat = folium.Map(location=[full['Latitude'].mean(), full['Longitude'].mean()], zoom_start=10)
 sheat.add_child(plugins.HeatMap([[row["Latitude"], row["Longitude"]] for name, row in full.iterrows()]))
 sheat.save(outfile = "Maps/heatmap.html")
+
+# Heatmap by SAT Score
+dist_data = full.groupby("schoold").agg(np.mean)
+dist_data.reset_index(inplace = True)
+dist_data["schoold"] = dist_data["schoold"].apply(lambda x: str(int(x)))
+sdmap("sat_score")
+
+# Function to display map
+def sdmap(col):
+    geop = "data/districts.geojson"
+    districts = folium.map(location = [full["Latitude"].mean(), full["Longitude"].mean(), zoom_start = 10)
+    district.geo_json(
+        geo_path = geop,
+        data = dist_data,
+        columns = ["schoold", col],
+        key_on = "feature.properties.schoold",
+        fill_color = "YlGn",
+        fill_opacity = 0.7,
+        line_opacity = 0.2,
+    )
+    districts.save(outfile = "Maps/districts.html")
+    return None
