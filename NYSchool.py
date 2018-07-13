@@ -109,9 +109,10 @@ for i, v in corr.iteritems():
     html += str(v)
     html += "<br />"
 html += "</body></html>"
-html_corr = open("Results/correlation.html","w")
+html_corr = open("docs/Results/correlation.html","w")
 html_corr.write(html)
 html_corr.close()
+
 # Display map
 smap = folium.Map(location=[full["Latitude"].mean(), full["Longitude"].mean()], zoom_start = 10)
 marky = MarkerCluster().add_to(smap)
@@ -119,9 +120,9 @@ for a, b in full.iterrows():
     name = b["DBN"]
     trial = "test"
     folium.Marker([b["Latitude"], b["Longitude"]], popup = name ).add_to(marky)
-smap.save(outfile = "Maps/location.html")
+smap.save(outfile = "docs/Maps/location.html")
 
 sheat = folium.Map(location=[full['Latitude'].mean(), full['Longitude'].mean()], zoom_start=10)
 sheat.add_child(plugins.HeatMap([[row["Latitude"], row["Longitude"]] for name, row in full.iterrows()]))
-sheat.save(outfile = "Maps/heatmap.html")
+sheat.save(outfile = "docs/Maps/heatmap.html")
 
