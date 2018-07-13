@@ -1,4 +1,5 @@
 import pandas as pd
+import geopandas as gpd
 import numpy as np
 import folium
 from folium import plugins
@@ -113,7 +114,7 @@ html_corr = open("docs/Results/correlation.html","w")
 html_corr.write(html)
 html_corr.close()
 
-# Display map
+# Location map
 smap = folium.Map(location=[full["Latitude"].mean(), full["Longitude"].mean()], zoom_start = 10)
 marky = MarkerCluster().add_to(smap)
 for a, b in full.iterrows():
@@ -122,7 +123,34 @@ for a, b in full.iterrows():
     folium.Marker([b["Latitude"], b["Longitude"]], popup = name ).add_to(marky)
 smap.save(outfile = "docs/Maps/location.html")
 
+# Location Heatmap
 sheat = folium.Map(location=[full['Latitude'].mean(), full['Longitude'].mean()], zoom_start=10)
 sheat.add_child(plugins.HeatMap([[row["Latitude"], row["Longitude"]] for name, row in full.iterrows()]))
 sheat.save(outfile = "docs/Maps/heatmap.html")
+
+# SAT Scores by District
+dist_data = full.groupby("schoold").agg(np.mean)
+dist_data.reset_index(inplace = True)
+dist_data["schoold"] = dist_data["schoold"].apply(lambda x : str(int(x)))
+dist_geo = gpd.read_file("Data/SchoolDistricts.geojson")
+dist_geo["school_dist"] = dist_geo["school_dist"].apply(lambda x : int(x))
+dist_geo.sort_values("school_dist", inplace = True)
+dist_geo["school_dist"] = dist_geo["school_dist"].apply(lambda x : str(x))
+dist_geo = dist_geo.reset_index(drop = True)
+districts = folium.Map(location = [full["Latitude"].mean(), full["Longitude"].mean()], zoom_start = 10)
+districts.choropleth(
+        geo_data = dist_geo,
+        name = 'choropleth',
+        data = dist_data,
+        columns = ["schoold", "total"],
+        key_on='feature.id',
+        fill_color='YlGn',
+        fill_opacity=0.7,
+        line_opacity=0.2,
+        legend_name='Average SAT Score'
+)
+
+folium.LayerControl().add_to(districts)
+districts.save(outfile = "docs/Maps/districts.html")
+
 
