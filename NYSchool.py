@@ -101,8 +101,17 @@ full["schoold"] = full["DBN"].apply(lambda x: x[:2])
 full = full.fillna(full.mean())
 
 # Compute correlation
-#print(full.corr()["total"])
-
+corr = full.corr()["total"]
+html = "<html><body><h1>Correlation</h1>" 
+for i, v in corr.iteritems():
+    html += "<b>" + str(i) + "</b>"
+    html += "   :   "
+    html += str(v)
+    html += "<br />"
+html += "</body></html>"
+html_corr = open("Results/correlation.html","w")
+html_corr.write(html)
+html_corr.close()
 # Display map
 smap = folium.Map(location=[full["Latitude"].mean(), full["Longitude"].mean()], zoom_start = 10)
 marky = MarkerCluster().add_to(smap)
